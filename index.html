@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BOPM – Boletim de Ocorrência CAEP</title>
+<link rel="icon" href="https://cdn.discordapp.com/attachments/1340824245646921860/1409344196917071892/image.png">
+<style>
+  :root{--pm:#8b0000;--bg:#f4f4f9}
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px auto;
+    max-width: 900px;
+    background: var(--bg);
+    color: #222;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+  header { text-align:center; margin-bottom:18px; }
+  header img { width:120px; height:auto; display:block; margin: 0 auto 8px; }
+  header h1{ color:var(--pm); font-size:20px; margin:6px 0; }
+  header h2{ color:#111; font-size:14px; margin:0; font-weight:600;}
+  .stripe {
+    height:8px;
+    background: linear-gradient(90deg,#0b57a4 0 50%, var(--pm) 50% 100%);
+    border-radius:6px; margin-bottom:14px;
+  }
+
+  h2.section {
+    margin-top: 20px;
+    border-bottom: 2px solid var(--pm);
+    padding-bottom: 6px;
+    color: var(--pm);
+    font-size:16px;
+  }
+  label{ display:block; font-weight:700; margin-top:10px; }
+  input, textarea, button, select {
+    width:100%; padding:8px; margin-top:6px; border-radius:6px; box-sizing:border-box;
+    border:1px solid #cfcfcf;
+  }
+  textarea{ resize:vertical; min-height:60px; }
+  .campo{ position:relative; margin-bottom:12px; }
+  .autocomplete-list{
+    position:absolute; left:0; right:0; top:calc(100% + 6px);
+    background:white; border:1px solid #ddd; max-height:180px; overflow:auto;
+    z-index:1200; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  }
+  .autocomplete-item{ padding:8px; cursor:pointer; }
+  .autocomplete-item:hover{ background:var(--pm); color:white; }
+  .tags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .tag{ background:var(--pm); color:white; padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:8px; font-size:13px; }
+  .tag span{ cursor:pointer; font-weight:bold; }
+  .actions { display:flex; gap:10px; margin-top:14px; }
+  .actions button{ width: auto; padding:10px 14px; cursor:pointer; }
+  .primary { background:var(--pm); color:white; border:none; border-radius:8px; }
+  .secondary { background:#eee; color:#222; border:none; border-radius:8px; }
+  #resumo {
+    background:#fff; padding:14px; border:2px solid var(--pm); border-radius:10px; margin-top:18px;
+    white-space:pre-wrap; font-family: "Courier New", monospace; font-size:13px;
+  }
+  .small { font-size:13px; color:#555; margin-top:6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <img id="caepLogo" src="https://cdn.discordapp.com/attachments/1432121112589766666/1432195612660596766/CAEP-removebg-preview.png?ex=69002b9a&is=68feda1a&hm=42a808a9a69d92ead488f227fc5bf2d2896c7118a34630d72ad7245df638e0aa&" alt="Brasão CAEP">
+  <h1>COMANDO DE AÇÕES ESPECIAIS DE POLÍCIA – CAEP</h1>
+  <h2>POLÍCIA MILITAR DO ESTADO DE SÃO PAULO</h2>
+  <div class="small">“OMI UFÉIN OXI PARALIMEN”</div>
+</header>
+
+<div class="stripe" aria-hidden="true"></div>
+
+<h2 class="section">Identificação</h2>
+<div class="campo">
+  <label>Número do BOPM (registro no tablet in-game):</label>
+  <input id="numBO" type="text" placeholder="Ex: 4872 (pode preencher manualmente)">
+</div>
+<div class="campo">
+  <label>Data:</label>
+  <input id="data" type="text" readonly>
+</div>
+<div class="campo">
+  <label>Hora:</label>
+  <input id="hora" type="time">
+</div>
+
+<h2 class="section">Unidade de Serviço</h2>
+<div class="campo">
+  <label>Prefixo da Viatura:</label>
+  <input id="prefixo" placeholder="Ex: M-18000">
+</div>
+
+<h2 class="section">Equipe Policial</h2>
+
+<div class="campo">
+  <label>Motorista:</label>
+  <select id="patenteMotorista">
+    <option value="Soldado PM">Soldado PM</option>
+    <option value="Cabo PM">Cabo PM</option>
+    <option value="3º Sargento PM">3º Sargento PM</option>
+    <option value="2º Sargento PM">2º Sargento PM</option>
+    <option value="1º Sargento PM">1º Sargento PM</option>
+    <option value="Subtenente PM">Subtenente PM</option>
+    <option value="Aspirante PM">Aspirante PM</option>
+    <option value="2º Tenente PM">2º Tenente PM</option>
+    <option value="1º Tenente PM">1º Tenente PM</option>
+    <option value="Capitão PM">Capitão PM</option>
+  </select>
+  <input id="nomeMotorista" placeholder="Nome completo">
+</div>
+
+<div class="campo">
+  <label>Chefe da Equipe:</label>
+  <select id="patenteChefe">
+    <option value="Soldado PM">Soldado PM</option>
+    <option value="Cabo PM">Cabo PM</option>
+    <option value="3º Sargento PM">3º Sargento PM</option>
+    <option value="2º Sargento PM">2º Sargento PM</option>
+    <option value="1º Sargento PM">1º Sargento PM</option>
+    <option value="Subtenente PM">Subtenente PM</option>
+    <option value="Aspirante PM">Aspirante PM</option>
+    <option value="2º Tenente PM">2º Tenente PM</option>
+    <option value="1º Tenente PM">1º Tenente PM</option>
+    <option value="Capitão PM">Capitão PM</option>
+  </select>
+  <input id="nomeChefe" placeholder="Nome completo">
+</div>
+
+<div class="campo">
+  <label>Terceiro Homem:</label>
+  <select id="patenteTerceiro">
+    <option value="Soldado PM">Soldado PM</option>
+    <option value="Cabo PM">Cabo PM</option>
+    <option value="3º Sargento PM">3º Sargento PM</option>
+    <option value="2º Sargento PM">2º Sargento PM</option>
+    <option value="1º Sargento PM">1º Sargento PM</option>
+    <option value="Subtenente PM">Subtenente PM</option>
+    <option value="Aspirante PM">Aspirante PM</option>
+    <option value="2º Tenente PM">2º Tenente PM</option>
+    <option value="1º Tenente PM">1º Tenente PM</option>
+    <option value="Capitão PM">Capitão PM</option>
+  </select>
+  <input id="nomeTerceiro" placeholder="Nome completo (ou N/A)">
+</div>
+
+<div class="campo">
+  <label>Quarto Homem:</label>
+  <select id="patenteQuarto">
+    <option value="Soldado PM">Soldado PM</option>
+    <option value="Cabo PM">Cabo PM</option>
+    <option value="3º Sargento PM">3º Sargento PM</option>
+    <option value="2º Sargento PM">2º Sargento PM</option>
+    <option value="1º Sargento PM">1º Sargento PM</option>
+    <option value="Subtenente PM">Subtenente PM</option>
+    <option value="Aspirante PM">Aspirante PM</option>
+    <option value="2º Tenente PM">2º Tenente PM</option>
+    <option value="1º Tenente PM">1º Tenente PM</option>
+    <option value="Capitão PM">Capitão PM</option>
+  </select>
+  <input id="nomeQuarto" placeholder="Nome completo (ou N/A)">
+</div>
+
+<h2 class="section">Dados da Ocorrência</h2>
+<div class="campo">
+  <label>Nome do Indivíduo:</label>
+  <input id="nomeElementoInput" placeholder="Nome completo">
+</div>
+<div class="campo">
+  <label>RG:</label>
+  <input id="rgElementoInput" placeholder="RG do indivíduo">
+</div>
+
+<div class="campo">
+  <label>Natureza dos Fatos (Artigos) — pressione Enter para criar tag ou escolha no autocomplete:</label>
+  <input id="enquadramento" placeholder="Digite o artigo legal">
+  <div id="enquadramento-list" class="autocomplete-list" style="display:none;"></div>
+  <div id="enquadramento-tags" class="tags"></div>
+</div>
+
+<div class="campo">
+  <label>Local da Ocorrência:</label>
+  <input id="local" placeholder="Ex: Av. Brasil, 102 – Centro">
+</div>
+
+<div class="campo">
+  <label>Relato da Ocorrência:</label>
+  <textarea id="descricao" placeholder="Descreva detalhadamente os fatos..."></textarea>
+</div>
+
+<div class="campo">
+  <label>Veículo do Indivíduo:</label>
+  <input id="veiculo" placeholder="Modelo, placa e características">
+</div>
+
+<div class="campo">
+  <label>Materiais Ilícitos (formato: quantidade x item):</label>
+  <textarea id="materiais" placeholder="Ex: 02x Porções de entorpecente, 01x Pistola 9mm"></textarea>
+</div>
+
+<div class="actions">
+  <button id="gerarBtn" class="primary">Gerar Boletim</button>
+  <button id="copiarBtn" class="secondary">Copiar Boletim</button>
+</div>
+
+<h2 class="section">Resumo do Boletim</h2>
+<div id="resumo">Nenhum boletim gerado ainda.</div>
+
+<script>
+document.getElementById('data').value = new Date().toLocaleDateString('pt-BR');
+
+function setupAutocomplete(inputId, listId, tagsId, dataList) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  const tags = document.getElementById(tagsId);
+
+  function renderList(matches) {
+    list.innerHTML = '';
+    if (!matches.length) { list.style.display = 'none'; return; }
+    matches.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      div.textContent = item;
+      div.addEventListener('click', () => {
+        addTag(item);
+        input.value = '';
+        list.innerHTML = '';
+        list.style.display = 'none';
+      });
+      list.appendChild(div);
+    });
+    list.style.display = 'block';
+  }
+
+  function addTag(value) {
+    if ([...tags.children].some(t => t.dataset.value === value)) return;
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.dataset.value = value;
+    tag.innerHTML = `${value} <span title="Remover">✖</span>`;
+    tag.querySelector('span').addEventListener('click', () => tag.remove());
+    tags.appendChild(tag);
+  }
+
+  input.addEventListener('input', () => {
+    const v = input.value.trim().toLowerCase();
+    if (!v) { list.innerHTML = ''; list.style.display='none'; return; }
+    const matches = dataList.filter(i => i.toLowerCase().includes(v));
+    renderList(matches);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && input.value.trim() !== '') {
+      e.preventDefault();
+      addTag(input.value.trim());
+      input.value = '';
+      list.innerHTML = '';
+      list.style.display='none';
+    }
+  });
+
+  document.addEventListener('click', (ev) => {
+    if (ev.target !== input && !list.contains(ev.target)) {
+      list.innerHTML = '';
+      list.style.display='none';
+    }
+  });
+
+  return { addTag };
+}
+
+const artigos = [
+  "Art. 129 - Lesão Corporal","Art. 163 - Dano a Patrimônio Particular","Art. 233 - Ato Obsceno",
+"Art. 138 - Calúnia","Art. 139 - Difamação","Art. 140 - Injúria","Art. 147 - Ameaça",
+"Art. 163 II - Dano a Patrimônio Público","Art. 171 - Estelionato","Lei 3.688 - Perturbação do Sossego",
+"Art. 35 - Associação ao Tráfico","Art. 135 - Omissão de Socorro","Art. 150 - Violação de Domicílio",
+"Art. 307 - Falsidade Ideológica","Lei 9.613 - Lavagem de Dinheiro","Lei 13.869 - Abuso de Autoridade",
+"Art. 180 - Receptação","Art. 289 - Posse de Dinheiro Ilícito","Art. 319 - Prevaricação",
+"Art. 155 - Furto","Art. 158 - Extorsão","Art. 287 - Apologia ao Crime","Art. 316 - Fuga da Prisão",
+"Art. 121 III - Homicídio Culposo","Art. 155 I - Furto Qualificado","Art. 329 - Resistência",
+"Art. 330 - Desobediência à Ordem Policial","Art. 1 - Organização Criminosa",
+"Lei 12.850 - Infiltração Policial sem Autorização","Art. 312 - Peculato","Art. 316 - Concussão",
+"Art. 317 - Corrupção","Art. 288 - Formação de Quadrilha","Art. 331 - Desacato à Autoridade",
+"Art. 121 - Homicídio","Art. 129 III - Lesão Corporal Seguida de Morte","Art. 157 - Roubo",
+"Art. 14 - Porte Ilegal de Armas","Art. 324 - Exercício Funcional Ilegal",
+"Art. 157 II - Roubo Qualificado","Art. 121 I - Homicídio Doloso","Art. 157 III - Latrocínio",
+"Art. 33 - Tráfico de Entorpecente","Art. 16 - Porte Ilegal de Arma Restrita",
+"Art. 17 - Comércio Ilegal de Armas ou Explosivos","Art. 121 IV - Homicídio a Servidor Público",
+"Art. 148 - Sequestro ou Cárcere Privado","Art. 3 - Genocídio","Lei 9.455 - Tortura",
+"Lei 13.260 - Terrorismo"
+];
+
+setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
+
+function gerarResumo() {
+  const numBO = document.getElementById('numBO').value.trim() || 'N/A';
+  const data = document.getElementById('data').value || 'N/A';
+  const hora = document.getElementById('hora').value || 'N/A';
+  const prefixo = document.getElementById('prefixo').value.trim() || 'N/A';
+
+  function formatEquipe(patenteId, nomeId) {
+    const nome = document.getElementById(nomeId).value.trim();
+    return nome ? document.getElementById(patenteId).value + ' ' + nome : '';
+  }
+
+  const motorista = formatEquipe('patenteMotorista','nomeMotorista');
+  const chefe = formatEquipe('patenteChefe','nomeChefe');
+  const terceiro = formatEquipe('patenteTerceiro','nomeTerceiro');
+  const quarto = formatEquipe('patenteQuarto','nomeQuarto');
+
+  const nome = document.getElementById('nomeElementoInput').value.trim() || 'N/A';
+  const rg = document.getElementById('rgElementoInput').value.trim() || 'N/A';
+  const enquadramento = [...document.getElementById('enquadramento-tags').children].map(t => t.dataset.value).join(', ') || 'N/A';
+  const local = document.getElementById('local').value.trim() || 'N/A';
+  const descricao = document.getElementById('descricao').value.trim() || 'N/A';
+  const veiculo = document.getElementById('veiculo').value.trim() || 'N/A';
+  const materiais = document.getElementById('materiais').value.trim() || 'N/A';
+
+  const texto =
+`# BOPM N° ${numBO}
+BOLETIM DE OCORRÊNCIA DA POLÍCIA MILITAR DE SÃO PAULO
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+# IDENTIFICAÇÃO
+
+**DATA E HORA:**
+Data: ${data}
+Horário: ${hora}
+
+**UNIDADE DE SERVIÇO:**
+Prefixo: ${prefixo}
+
+**POLICIAL MILITAR (EQUIPE):**
+Motorista: ${motorista}
+Chefe da Equipe: ${chefe}
+Terceiro Homem: ${terceiro}
+Quarto Homem: ${quarto}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+# DADOS DA OCORRÊNCIA
+
+**IDENTIFICAÇÃO DO INDIVÍDUO:**
+${nome} - RG: ${rg}
+
+**NATUREZA DOS FATOS:**
+${enquadramento}
+
+**LOCAL DA OCORRÊNCIA:**
+${local}
+
+**RELATO DA OCORRÊNCIA:**
+${descricao}
+
+**VEÍCULO DO INDIVÍDUO:**
+${veiculo}
+
+**MATERIAIS ILÍCITOS:**
+${materiais}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
+
+  document.getElementById('resumo').textContent = texto;
+  return texto;
+}
+
+async function copiarResumo() {
+  const texto = document.getElementById('resumo').textContent;
+  try {
+    await navigator.clipboard.writeText(texto);
+    alert('Boletim copiado para a área de transferência!');
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    alert('Boletim copiado (método alternativo).');
+  }
+}
+
+document.getElementById('gerarBtn').addEventListener('click', () => gerarResumo());
+document.getElementById('copiarBtn').addEventListener('click', () => copiarResumo());
+</script>
+
+</body>
+</html>
