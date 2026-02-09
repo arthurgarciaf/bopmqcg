@@ -213,7 +213,7 @@
 </div>
 
 <div class="actions">
-  <button id="gerarBtn" class="primary">Gerar Boletim</button>
+  <button id="gerarBtn" class="primary">Gerar e Enviar Boletim</button>
   <button id="copiarBtn" class="secondary">Copiar Boletim</button>
 </div>
 
@@ -221,6 +221,12 @@
 <div id="resumo">Nenhum boletim gerado ainda.</div>
 
 <script>
+// ==========================================
+// CONFIGURAÇÃO DO WEBHOOK
+// COLOQUE SEU LINK DO DISCORD ENTRE AS ASPAS ABAIXO:
+const WEBHOOK_URL = "SUA_URL_DO_WEBHOOK_AQUI";
+// ==========================================
+
 document.getElementById('data').value = new Date().toLocaleDateString('pt-BR');
 
 function setupAutocomplete(inputId, listId, tagsId, dataList) {
@@ -285,26 +291,44 @@ function setupAutocomplete(inputId, listId, tagsId, dataList) {
 
 const artigos = [
   "Art. 129 - Lesão Corporal","Art. 163 - Dano a Patrimônio Particular","Art. 233 - Ato Obsceno",
-"Art. 138 - Calúnia","Art. 139 - Difamação","Art. 140 - Injúria","Art. 147 - Ameaça",
-"Art. 163 II - Dano a Patrimônio Público","Art. 171 - Estelionato","Lei 3.688 - Perturbação do Sossego",
-"Art. 35 - Associação ao Tráfico","Art. 135 - Omissão de Socorro","Art. 150 - Violação de Domicílio",
-"Art. 307 - Falsidade Ideológica","Lei 9.613 - Lavagem de Dinheiro","Lei 13.869 - Abuso de Autoridade",
-"Art. 180 - Receptação","Art. 289 - Posse de Dinheiro Ilícito","Art. 319 - Prevaricação",
-"Art. 155 - Furto","Art. 158 - Extorsão","Art. 287 - Apologia ao Crime","Art. 316 - Fuga da Prisão",
-"Art. 121 III - Homicídio Culposo","Art. 155 I - Furto Qualificado","Art. 329 - Resistência",
-"Art. 330 - Desobediência à Ordem Policial","Art. 1 - Organização Criminosa",
-"Lei 12.850 - Infiltração Policial sem Autorização","Art. 312 - Peculato","Art. 316 - Concussão",
-"Art. 317 - Corrupção","Art. 288 - Formação de Quadrilha","Art. 331 - Desacato à Autoridade",
-"Art. 121 - Homicídio","Art. 129 III - Lesão Corporal Seguida de Morte","Art. 157 - Roubo",
-"Art. 14 - Porte Ilegal de Armas","Art. 324 - Exercício Funcional Ilegal",
-"Art. 157 II - Roubo Qualificado","Art. 121 I - Homicídio Doloso","Art. 157 III - Latrocínio",
-"Art. 33 - Tráfico de Entorpecente","Art. 16 - Porte Ilegal de Arma Restrita",
-"Art. 17 - Comércio Ilegal de Armas ou Explosivos","Art. 121 IV - Homicídio a Servidor Público",
-"Art. 148 - Sequestro ou Cárcere Privado","Art. 3 - Genocídio","Lei 9.455 - Tortura",
-"Lei 13.260 - Terrorismo"
+  "Art. 138 - Calúnia","Art. 139 - Difamação","Art. 140 - Injúria","Art. 147 - Ameaça",
+  "Art. 163 II - Dano a Patrimônio Público","Art. 171 - Estelionato","Lei 3.688 - Perturbação do Sossego",
+  "Art. 35 - Associação ao Tráfico","Art. 135 - Omissão de Socorro","Art. 150 - Violação de Domicílio",
+  "Art. 307 - Falsidade Ideológica","Lei 9.613 - Lavagem de Dinheiro","Lei 13.869 - Abuso de Autoridade",
+  "Art. 180 - Receptação","Art. 289 - Posse de Dinheiro Ilícito","Art. 319 - Prevaricação",
+  "Art. 155 - Furto","Art. 158 - Extorsão","Art. 287 - Apologia ao Crime","Art. 316 - Fuga da Prisão",
+  "Art. 121 III - Homicídio Culposo","Art. 155 I - Furto Qualificado","Art. 329 - Resistência",
+  "Art. 330 - Desobediência à Ordem Policial","Art. 1 - Organização Criminosa",
+  "Lei 12.850 - Infiltração Policial sem Autorização","Art. 312 - Peculato","Art. 316 - Concussão",
+  "Art. 317 - Corrupção","Art. 288 - Formação de Quadrilha","Art. 331 - Desacato à Autoridade",
+  "Art. 121 - Homicídio","Art. 129 III - Lesão Corporal Seguida de Morte","Art. 157 - Roubo",
+  "Art. 14 - Porte Ilegal de Armas","Art. 324 - Exercício Funcional Ilegal",
+  "Art. 157 II - Roubo Qualificado","Art. 121 I - Homicídio Doloso","Art. 157 III - Latrocínio",
+  "Art. 33 - Tráfico de Entorpecente","Art. 16 - Porte Ilegal de Arma Restrita",
+  "Art. 17 - Comércio Ilegal de Armas ou Explosivos","Art. 121 IV - Homicídio a Servidor Público",
+  "Art. 148 - Sequestro ou Cárcere Privado","Art. 3 - Genocídio","Lei 9.455 - Tortura",
+  "Lei 13.260 - Terrorismo"
 ];
 
 setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
+
+async function enviarParaDiscord(idBoletim, relato, artigosSel) {
+  if (!WEBHOOK_URL || WEBHOOK_URL.includes("SUA_URL")) return;
+
+  const mensagem = {
+    content: `**NOVO BOLETIM**\n**ID DO BOLETIM:** ${idBoletim}\n**RELATO DA OCORRENCIA:** ${relato}\n**ARTIGOS:** ${artigosSel}`
+  };
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mensagem)
+    });
+  } catch (e) {
+    console.error("Falha ao enviar para o Discord", e);
+  }
+}
 
 function gerarResumo() {
   const numBO = document.getElementById('numBO').value.trim() || 'N/A';
@@ -376,6 +400,10 @@ ${materiais}
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
 
   document.getElementById('resumo').textContent = texto;
+  
+  // Chama o envio para o Discord apenas com o que você pediu
+  enviarParaDiscord(numBO, descricao, enquadramento);
+  
   return texto;
 }
 
@@ -383,15 +411,9 @@ async function copiarResumo() {
   const texto = document.getElementById('resumo').textContent;
   try {
     await navigator.clipboard.writeText(texto);
-    alert('Boletim copiado para a área de transferência!');
+    alert('Boletim copiado!');
   } catch (err) {
-    const ta = document.createElement('textarea');
-    ta.value = texto;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-    alert('Boletim copiado (método alternativo).');
+    alert('Erro ao copiar.');
   }
 }
 
