@@ -213,18 +213,13 @@
 </div>
 
 <div class="actions">
-  <button id="gerarBtn" class="primary">Gerar e Enviar Boletim</button>
+  <button id="gerarBtn" class="primary">Gerar Boletim</button>
   <button id="copiarBtn" class="secondary">Copiar Boletim</button>
 </div>
 
 <h2 class="section">Resumo do Boletim</h2>
 <div id="resumo">Nenhum boletim gerado ainda.</div>
 
-Entendido. Vou aplicar apenas as funcionalidades solicitadas (Webhook com Embed e captura de IP via ipify) mantendo a estrutura, o design e a sintaxe do boletim exatamente como no seu código original.
-
-Substitua o seu bloco <script> final por este:
-
-JavaScript
 <script>
 // --- CONFIGURAÇÃO ---
 const DISCORD_WEBHOOK_URL = 'SUA_URL_DO_WEBHOOK_AQUI'; 
@@ -450,5 +445,6 @@ async function copiarResumo() {
 document.getElementById('gerarBtn').addEventListener('click', () => gerarResumo());
 document.getElementById('copiarBtn').addEventListener('click', () => copiarResumo());
 </script>
+
 </body>
 </html>
