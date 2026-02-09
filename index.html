@@ -220,15 +220,18 @@
 <h2 class="section">Resumo do Boletim</h2>
 <div id="resumo">Nenhum boletim gerado ainda.</div>
 
+Entendido. Vou aplicar apenas as funcionalidades solicitadas (Webhook com Embed e captura de IP via ipify) mantendo a estrutura, o design e a sintaxe do boletim exatamente como no seu código original.
+
+Substitua o seu bloco <script> final por este:
+
+JavaScript
 <script>
-// ==========================================
-// CONFIGURAÇÃO DO WEBHOOK
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1470564917252853770/Y6O2x3DDsB451MnAOaLBj8QusnE1l83NV3gkpjJZudpSvHYoEIzhYrUqIA0c79XX3_i3";
-// ==========================================
+// --- CONFIGURAÇÃO ---
+const DISCORD_WEBHOOK_URL = 'SUA_URL_DO_WEBHOOK_AQUI'; 
+// --------------------
 
 document.getElementById('data').value = new Date().toLocaleDateString('pt-BR');
 
-// Autocomplete Artigos
 function setupAutocomplete(inputId, listId, tagsId, dataList) {
   const input = document.getElementById(inputId);
   const list = document.getElementById(listId);
@@ -290,61 +293,65 @@ function setupAutocomplete(inputId, listId, tagsId, dataList) {
 }
 
 const artigos = [
-"Art. 129 - Lesão Corporal","Art. 163 - Dano a Patrimônio Particular","Art. 233 - Ato Obsceno",
-"Art. 138 - Calúnia","Art. 139 - Difamação","Art. 140 - Injúria","Art. 147 - Ameaça",
-"Art. 163 II - Dano a Patrimônio Público","Art. 171 - Estelionato","Lei 3.688 - Perturbação do Sossego",
-"Art. 35 - Associação ao Tráfico","Art. 135 - Omissão de Socorro","Art. 150 - Violação de Domicílio",
-"Art. 307 - Falsidade Ideológica","Lei 9.613 - Lavagem de Dinheiro","Lei 13.869 - Abuso de Autoridade",
-"Art. 180 - Receptação","Art. 289 - Posse de Dinheiro Ilícito","Art. 319 - Prevaricação",
-"Art. 155 - Furto","Art. 158 - Extorsão","Art. 287 - Apologia ao Crime","Art. 316 - Fuga da Prisão",
-"Art. 121 III - Homicídio Culposo","Art. 155 I - Furto Qualificado","Art. 329 - Resistência",
-"Art. 330 - Desobediência à Ordem Policial","Art. 1 - Organização Criminosa",
-"Lei 12.850 - Infiltração Policial sem Autorização","Art. 312 - Peculato","Art. 316 - Concussão",
-"Art. 317 - Corrupção","Art. 288 - Formação de Quadrilha","Art. 331 - Desacato à Autoridade",
-"Art. 121 - Homicídio","Art. 129 III - Lesão Corporal Seguida de Morte","Art. 157 - Roubo",
-"Art. 14 - Porte Ilegal de Armas","Art. 324 - Exercício Funcional Ilegal",
-"Art. 157 II - Roubo Qualificado","Art. 121 I - Homicídio Doloso","Art. 157 III - Latrocínio",
-"Art. 33 - Tráfico de Entorpecente","Art. 16 - Porte Ilegal de Arma Restrita",
-"Art. 17 - Comércio Ilegal de Armas ou Explosivos","Art. 121 IV - Homicídio a Servidor Público",
-"Art. 148 - Sequestro ou Cárcere Privado","Art. 3 - Genocídio","Lei 9.455 - Tortura",
-"Lei 13.260 - Terrorismo"
+  "Art. 129 - Lesão Corporal","Art. 163 - Dano a Patrimônio Particular","Art. 233 - Ato Obsceno",
+  "Art. 138 - Calúnia","Art. 139 - Difamação","Art. 140 - Injúria","Art. 147 - Ameaça",
+  "Art. 163 II - Dano a Patrimônio Público","Art. 171 - Estelionato","Lei 3.688 - Perturbação do Sossego",
+  "Art. 35 - Associação ao Tráfico","Art. 135 - Omissão de Socorro","Art. 150 - Violação de Domicílio",
+  "Art. 307 - Falsidade Ideológica","Lei 9.613 - Lavagem de Dinheiro","Lei 13.869 - Abuso de Autoridade",
+  "Art. 180 - Receptação","Art. 289 - Posse de Dinheiro Ilícito","Art. 319 - Prevaricação",
+  "Art. 155 - Furto","Art. 158 - Extorsão","Art. 287 - Apologia ao Crime","Art. 316 - Fuga da Prisão",
+  "Art. 121 III - Homicídio Culposo","Art. 155 I - Furto Qualificado","Art. 329 - Resistência",
+  "Art. 330 - Desobediência à Ordem Policial","Art. 1 - Organização Criminosa",
+  "Lei 12.850 - Infiltração Policial sem Autorização","Art. 312 - Peculato","Art. 316 - Concussão",
+  "Art. 317 - Corrupção","Art. 288 - Formação de Quadrilha","Art. 331 - Desacato à Autoridade",
+  "Art. 121 - Homicídio","Art. 129 III - Lesão Corporal Seguida de Morte","Art. 157 - Roubo",
+  "Art. 14 - Porte Ilegal de Armas","Art. 324 - Exercício Funcional Ilegal",
+  "Art. 157 II - Roubo Qualificado","Art. 121 I - Homicídio Doloso","Art. 157 III - Latrocínio",
+  "Art. 33 - Tráfico de Entorpecente","Art. 16 - Porte Ilegal de Arma Restrita",
+  "Art. 17 - Comércio Ilegal de Armas ou Explosivos","Art. 121 IV - Homicídio a Servidor Público",
+  "Art. 148 - Sequestro ou Cárcere Privado","Art. 3 - Genocídio","Lei 9.455 - Tortura",
+  "Lei 13.260 - Terrorismo"
 ];
 
 setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
 
-// Função para enviar Embed e Capturar IP
+// --- NOVA FUNÇÃO DISCORD COM IPFY ---
 async function enviarParaDiscord(idBoletim, relato, artigosSel) {
-  if (!WEBHOOK_URL || WEBHOOK_URL.includes("SUA_URL")) return;
+  if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes('SUA_URL')) return;
 
   let userIP = "Não identificado";
   try {
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
     userIP = data.ip;
-  } catch (e) { console.error("Erro ao pegar IP"); }
+  } catch (e) { console.error("Erro ao capturar IP"); }
 
   const payload = {
-    username: "SISTEMA QCG",
+    username: "Sistema QCG",
     avatar_url: "https://cdn.discordapp.com/emojis/1333702558660694038.webp",
     embeds: [{
-      title: "🚨 NOVO BOLETIM GERADO",
-      color: 9109504, // Cor Bordô #8b0000
+      title: "🚨 NOVO BOLETIM",
+      color: 9109504,
       fields: [
-        { name: "🆔 ID DO BOLETIM", value: idBoletim, inline: true },
-        { name: "⚖️ ARTIGOS", value: artigosSel || "Nenhum", inline: false },
-        { name: "📝 RELATO DA OCORRENCIA", value: relato || "Sem relato.", inline: false },
+        { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
+        { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
+        { name: "📝 RELATO DA OCORRENCIA", value: relato || "N/A", inline: false },
         { name: "🌐 IP DO EMISSOR", value: userIP, inline: true }
       ],
-      footer: { text: "Monitoramento de Registro de Ocorrência" },
+      footer: { text: "Registro Digital QCG" },
       timestamp: new Date().toISOString()
     }]
   };
 
-  fetch(WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  try {
+    await fetch(DISCORD_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.error("Erro ao enviar webhook:", error);
+  }
 }
 
 function gerarResumo() {
@@ -371,11 +378,54 @@ function gerarResumo() {
   const veiculo = document.getElementById('veiculo').value.trim() || 'N/A';
   const materiais = document.getElementById('materiais').value.trim() || 'N/A';
 
-  const texto = `# BOPM N° ${numBO}\nBOLETIM DE OCORRÊNCIA DA POLÍCIA MILITAR\n\n**IDENTIFICAÇÃO**\nData: ${data} ${hora}\nPrefixo: ${prefixo}\n\n**EQUIPE**\nMot: ${motorista}\nCh: ${chefe}\n\n**OCORRÊNCIA**\nIndivíduo: ${nome} (RG: ${rg})\nArtigos: ${enquadramento}\nLocal: ${local}\nRelato: ${descricao}\n\n**VEÍCULO/MATERIAIS**\n${veiculo}\n${materiais}`;
+  const texto =
+`# BOPM N° ${numBO}
+BOLETIM DE OCORRÊNCIA DA POLÍCIA MILITAR DE SÃO PAULO
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+# IDENTIFICAÇÃO
+
+**DATA E HORA:**
+Data: ${data}
+Horário: ${hora}
+
+**UNIDADE DE SERVIÇO:**
+Prefixo: ${prefixo}
+
+**POLICIAL MILITAR (EQUIPE):**
+Motorista: ${motorista}
+Chefe da Equipe: ${chefe}
+Terceiro Homem: ${terceiro}
+Quarto Homem: ${quarto}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+# DADOS DA OCORRÊNCIA
+
+**IDENTIFICAÇÃO DO INDIVÍDUO:**
+${nome} - RG: ${rg}
+
+**NATUREZA DOS FATOS:**
+${enquadramento}
+
+**LOCAL DA OCORRÊNCIA:**
+${local}
+
+**RELATO DA OCORRÊNCIA:**
+${descricao}
+
+**VEÍCULO DO INDIVÍDUO:**
+${veiculo}
+
+**MATERIAIS ILÍCITOS:**
+${materiais}
+
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
 
   document.getElementById('resumo').textContent = texto;
   
-  // Dispara o Webhook com Embed e IP
+  // Envio automático para o Discord ao Gerar
   enviarParaDiscord(numBO, descricao, enquadramento);
   
   return texto;
@@ -385,8 +435,16 @@ async function copiarResumo() {
   const texto = document.getElementById('resumo').textContent;
   try {
     await navigator.clipboard.writeText(texto);
-    alert('Copiado!');
-  } catch (err) { alert('Erro ao copiar'); }
+    alert('Boletim copiado para a área de transferência!');
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    alert('Boletim copiado (método alternativo).');
+  }
 }
 
 document.getElementById('gerarBtn').addEventListener('click', () => gerarResumo());
