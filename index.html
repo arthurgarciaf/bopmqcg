@@ -310,43 +310,57 @@ const artigos = [
 
 setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
 
-// --- NOVA FUNÇÃO DISCORD COM IPFY ---
+// --- NOVA FUNÇÃO DISCORD CORRIGIDA ---
 async function enviarParaDiscord(idBoletim, relato, artigosSel) {
-  if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.includes('https://discord.com/api/webhooks/1470564917252853770/Y6O2x3DDsB451MnAOaLBj8QusnE1l83NV3gkpjJZudpSvHYoEIzhYrUqIA0c79XX3_i3')) return;
+    // Correção: Removemos a verificação que bloqueava sua URL específica
+    if (!DISCORD_WEBHOOK_URL) {
+        console.error("URL do Webhook não configurada.");
+        return;
+    }
 
-  let userIP = "Não identificado";
-  try {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    userIP = data.ip;
-  } catch (e) { console.error("Erro ao capturar IP"); }
+    let userIP = "Não identificado";
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        userIP = data.ip;
+    } catch (e) { 
+        console.error("Erro ao capturar IP (pode ser AdBlock)", e); 
+    }
 
-  const payload = {
-    username: "Sistema QCG",
-    avatar_url: "https://cdn.discordapp.com/emojis/1333702558660694038.webp",
-    embeds: [{
-      title: "🚨 NOVO BOLETIM",
-      color: 9109504,
-      fields: [
-        { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
-        { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
-        { name: "📝 RELATO DA OCORRENCIA", value: relato || "N/A", inline: false },
-        { name: "🌐 IP DO EMISSOR", value: userIP, inline: true }
-      ],
-      footer: { text: "Registro Digital QCG" },
-      timestamp: new Date().toISOString()
-    }]
-  };
+    const payload = {
+        username: "Sistema QCG",
+        avatar_url: "https://cdn.discordapp.com/emojis/1333702558660694038.webp",
+        embeds: [{
+            title: "🚨 NOVO BOLETIM",
+            color: 9109504,
+            fields: [
+                { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
+                { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
+                { name: "📝 RELATO DA OCORRENCIA", value: relato || "N/A", inline: false },
+                { name: "🌐 IP DO EMISSOR", value: userIP, inline: true }
+            ],
+            footer: { text: "Registro Digital QCG" },
+            timestamp: new Date().toISOString()
+        }]
+    };
 
-  try {
-    await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-  } catch (error) {
-    console.error("Erro ao enviar webhook:", error);
-  }
+    try {
+        const response = await fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            console.log("Boletim enviado para o Discord com sucesso!");
+            alert("Boletim enviado para o banco de dados (Discord)!");
+        } else {
+            console.error("Erro no retorno do Discord:", response.status, response.statusText);
+            alert("Erro ao enviar para o Discord. Verifique o console (F12).");
+        }
+    } catch (error) {
+        console.error("Erro de conexão ao enviar webhook:", error);
+    }
 }
 
 function gerarResumo() {
