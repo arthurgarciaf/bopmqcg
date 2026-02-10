@@ -5,220 +5,507 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BOPM – Boletim de Ocorrência QCG</title>
 <link rel="icon" href="https://cdn.discordapp.com/attachments/1340824245646921860/1409344196917071892/image.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-  :root{--pm:#8b0000;--bg:#f4f4f9}
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px auto;
-    max-width: 900px;
-    background: var(--bg);
-    color: #222;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  }
-  header { text-align:center; margin-bottom:18px; }
-  header img { width:120px; height:auto; display:block; margin: 0 auto 8px; }
-  header h1{ color:var(--pm); font-size:20px; margin:6px 0; }
-  header h2{ color:#111; font-size:14px; margin:0; font-weight:600;}
-  .stripe {
-    height:8px;
-    background: linear-gradient(90deg,#0b57a4 0 50%, var(--pm) 50% 100%);
-    border-radius:6px; margin-bottom:14px;
+  :root {
+    --primary: #b91c1c; /* Vermelho PM */
+    --primary-dark: #7f1d1d;
+    --accent: #1e293b; /* Cinza escuro */
+    --bg-body: #f1f5f9;
+    --bg-card: #ffffff;
+    --border: #e2e8f0;
+    --text-main: #334155;
+    --text-light: #64748b;
+    --focus-ring: rgba(185, 28, 28, 0.25);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
-  h2.section {
-    margin-top: 20px;
-    border-bottom: 2px solid var(--pm);
-    padding-bottom: 6px;
-    color: var(--pm);
-    font-size:16px;
+  * { box-sizing: border-box; outline: none; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
   }
-  label{ display:block; font-weight:700; margin-top:10px; }
-  input, textarea, button, select {
-    width:100%; padding:8px; margin-top:6px; border-radius:6px; box-sizing:border-box;
-    border:1px solid #cfcfcf;
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border-top: 6px solid var(--primary);
   }
-  textarea{ resize:vertical; min-height:60px; }
-  .campo{ position:relative; margin-bottom:12px; }
-  .autocomplete-list{
-    position:absolute; left:0; right:0; top:calc(100% + 6px);
-    background:white; border:1px solid #ddd; max-height:180px; overflow:auto;
-    z-index:1200; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+
+  /* Header */
+  header {
+    background: linear-gradient(to bottom, #fff, #f8fafc);
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
   }
-  .autocomplete-item{ padding:8px; cursor:pointer; }
-  .autocomplete-item:hover{ background:var(--pm); color:white; }
-  .tags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
-  .tag{ background:var(--pm); color:white; padding:6px 8px; border-radius:6px; display:inline-flex; align-items:center; gap:8px; font-size:13px; }
-  .tag span{ cursor:pointer; font-weight:bold; }
-  .actions { display:flex; gap:10px; margin-top:14px; }
-  .actions button{ width: auto; padding:10px 14px; cursor:pointer; }
-  .primary { background:var(--pm); color:white; border:none; border-radius:8px; }
-  .secondary { background:#eee; color:#222; border:none; border-radius:8px; }
-  #resumo {
-    background:#fff; padding:14px; border:2px solid var(--pm); border-radius:10px; margin-top:18px;
-    white-space:pre-wrap; font-family: "Courier New", monospace; font-size:13px;
+  
+  header img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   }
-  .small { font-size:13px; color:#555; margin-top:6px; }
+  
+  header h1 {
+    color: var(--primary);
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+  }
+  
+  header h2 {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Conteúdo Principal */
+  .main-content {
+    padding: 30px;
+  }
+
+  h2.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 10px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  
+  h2.section-title i { color: var(--primary); }
+  h2.section-title:first-of-type { margin-top: 0; }
+
+  /* Grid System - Atualizado */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px; 
+    align-items: end; 
+  }
+  
+  .col-12 { grid-column: span 12; }
+  .col-9  { grid-column: span 9; } 
+  .col-6  { grid-column: span 6; }
+  .col-4  { grid-column: span 4; }
+  .col-3  { grid-column: span 3; } 
+
+  @media (max-width: 768px) {
+    .col-12, .col-9, .col-6, .col-4, .col-3 { grid-column: span 12; }
+  }
+
+  /* Inputs e Labels */
+  .form-group {
+    position: relative;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-main);
+    background: #fff;
+    transition: all 0.2s ease;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+
+  input[readonly] {
+    background-color: #f8fafc;
+    color: var(--text-light);
+    cursor: not-allowed;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+  }
+
+  /* Grupo de Equipe (Input Group) */
+  .input-group {
+    display: flex;
+    gap: 0;
+    width: 100%;
+  }
+  
+  .input-group select {
+    width: 35%;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: #f8fafc;
+    font-weight: 500;
+  }
+  
+  .input-group input {
+    width: 65%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: none;
+  }
+
+  /* Autocomplete & Tags */
+  .autocomplete-wrapper { position: relative; }
+  
+  .autocomplete-list {
+    position: absolute;
+    top: 105%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+  }
+  
+  .autocomplete-item {
+    padding: 10px 15px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover { background-color: #fff1f2; color: var(--primary); font-weight: 500; }
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    min-height: 20px;
+  }
+  
+  .tag {
+    background: var(--accent);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .tag span {
+    cursor: pointer;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+  
+  .tag span:hover { background: rgba(255,255,255,0.4); }
+
+  /* Buttons */
+  .actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  
+  button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  button:active { transform: translateY(1px); }
+  
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(185, 28, 28, 0.3);
+  }
+  
+  .btn-primary:hover { background-color: var(--primary-dark); }
+  
+  .btn-secondary {
+    background-color: white;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+  }
+  
+  .btn-secondary:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+
+  /* Resumo Area */
+  .resumo-box {
+    margin-top: 30px;
+    background: #1e293b; 
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    border-left: 5px solid var(--primary);
+    position: relative;
+  }
+  
+  .resumo-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 30px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; }
+  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #999; }
+
 </style>
 </head>
 <body>
 
-<header>
-  <img id="caepLogo" src="https://cdn.discordapp.com/emojis/1333702558660694038.webp?size=96" alt="Brasão QCG">
-  <h1>QUARTEL DO COMANDO GERAL – QCG</h1>
-  <h2>POLÍCIA MILITAR DO ESTADO DE SÃO PAULO</h2>
-  <div class="small">“”</div>
-</header>
+<div class="container">
+  <header>
+    <img id="caepLogo" src="https://cdn.discordapp.com/emojis/1333702558660694038.webp?size=96" alt="Brasão QCG">
+    <h1>Quartel do Comando Geral – QCG</h1>
+    <h2>Polícia Militar do Estado de São Paulo</h2>
+  </header>
 
-<div class="stripe" aria-hidden="true"></div>
+  <div class="main-content">
+    
+    <h2 class="section-title"><i class="fa-solid fa-file-signature"></i> Identificação</h2>
+    <div class="grid">
+      <div class="col-4 form-group">
+        <label>Nº BOPM</label>
+        <input id="numBO" type="text" placeholder="Ex: 4872">
+      </div>
+      <div class="col-4 form-group">
+        <label>Data</label>
+        <input id="data" type="text" readonly>
+      </div>
+      <div class="col-4 form-group">
+        <label>Hora</label>
+        <input id="hora" type="time">
+      </div>
+    </div>
 
-<h2 class="section">Identificação</h2>
-<div class="campo">
-  <label>Número do BOPM (registro no tablet in-game):</label>
-  <input id="numBO" type="text" placeholder="Ex: 4872 (pode preencher manualmente)">
-</div>
-<div class="campo">
-  <label>Data:</label>
-  <input id="data" type="text" readonly>
-</div>
-<div class="campo">
-  <label>Hora:</label>
-  <input id="hora" type="time">
-</div>
+    <h2 class="section-title"><i class="fa-solid fa-car-side"></i> Unidade de Serviço</h2>
+    <div class="grid">
+      <div class="col-12 form-group">
+        <label>Prefixo da Viatura</label>
+        <input id="prefixo" placeholder="Ex: M-18000">
+      </div>
+    </div>
 
-<h2 class="section">Unidade de Serviço</h2>
-<div class="campo">
-  <label>Prefixo da Viatura:</label>
-  <input id="prefixo" placeholder="Ex: M-18000">
-</div>
+    <h2 class="section-title"><i class="fa-solid fa-users-viewfinder"></i> Equipe Policial</h2>
+    <div class="grid">
+      
+      <div class="col-6 form-group">
+        <label>Motorista</label>
+        <div class="input-group">
+          <select id="patenteMotorista">
+            <option value="Soldado PM">Sd PM</option>
+            <option value="Cabo PM">Cb PM</option>
+            <option value="3º Sargento PM">3º Sgt PM</option>
+            <option value="2º Sargento PM">2º Sgt PM</option>
+            <option value="1º Sargento PM">1º Sgt PM</option>
+            <option value="Subtenente PM">SubTen PM</option>
+            <option value="Aspirante PM">Asp PM</option>
+            <option value="2º Tenente PM">2º Ten PM</option>
+            <option value="1º Tenente PM">1º Ten PM</option>
+            <option value="Capitão PM">Cap PM</option>
+            <option value="Major PM">Maj PM</option>
+            <option value="Tenente Coronel PM">Ten Cel PM</option>
+            <option value="Coronel PM">Cel PM</option>
+          </select>
+          <input id="nomeMotorista" placeholder="Nome Completo">
+        </div>
+      </div>
 
-<h2 class="section">Equipe Policial</h2>
+      <div class="col-6 form-group">
+        <label>Chefe de Equipe</label>
+        <div class="input-group">
+          <select id="patenteChefe">
+            <option value="Soldado PM">Sd PM</option>
+            <option value="Cabo PM">Cb PM</option>
+            <option value="3º Sargento PM">3º Sgt PM</option>
+            <option value="2º Sargento PM">2º Sgt PM</option>
+            <option value="1º Sargento PM">1º Sgt PM</option>
+            <option value="Subtenente PM">SubTen PM</option>
+            <option value="Aspirante PM">Asp PM</option>
+            <option value="2º Tenente PM">2º Ten PM</option>
+            <option value="1º Tenente PM">1º Ten PM</option>
+            <option value="Capitão PM">Cap PM</option>
+            <option value="Major PM">Maj PM</option>
+            <option value="Tenente Coronel PM">Ten Cel PM</option>
+            <option value="Coronel PM">Cel PM</option>
+          </select>
+          <input id="nomeChefe" placeholder="Nome Completo">
+        </div>
+      </div>
 
-<div class="campo">
-  <label>Motorista:</label>
-  <select id="patenteMotorista">
-    <option value="Soldado PM">Soldado PM</option>
-    <option value="Cabo PM">Cabo PM</option>
-    <option value="3º Sargento PM">3º Sargento PM</option>
-    <option value="2º Sargento PM">2º Sargento PM</option>
-    <option value="1º Sargento PM">1º Sargento PM</option>
-    <option value="Subtenente PM">Subtenente PM</option>
-    <option value="Aspirante PM">Aspirante PM</option>
-    <option value="2º Tenente PM">2º Tenente PM</option>
-    <option value="1º Tenente PM">1º Tenente PM</option>
-    <option value="Capitão PM">Capitão PM</option>
-    <option value="Major PM">Major PM</option>
-    <option value="Tenente Coronel PM">Tenente Coronel PM</option>
-    <option value="Coronel PM">Coronel PM</option>
-  </select>
-  <input id="nomeMotorista" placeholder="Nome completo">
-</div>
+      <div class="col-6 form-group">
+        <label>Terceiro Homem</label>
+        <div class="input-group">
+          <select id="patenteTerceiro">
+            <option value="Soldado PM">Sd PM</option>
+            <option value="Cabo PM">Cb PM</option>
+            <option value="3º Sargento PM">3º Sgt PM</option>
+            <option value="2º Sargento PM">2º Sgt PM</option>
+            <option value="1º Sargento PM">1º Sgt PM</option>
+            <option value="Subtenente PM">SubTen PM</option>
+            <option value="Aspirante PM">Asp PM</option>
+            <option value="2º Tenente PM">2º Ten PM</option>
+            <option value="1º Tenente PM">1º Ten PM</option>
+            <option value="Capitão PM">Cap PM</option>
+            <option value="Major PM">Maj PM</option>
+            <option value="Tenente Coronel PM">Ten Cel PM</option>
+            <option value="Coronel PM">Cel PM</option>
+          </select>
+          <input id="nomeTerceiro" placeholder="Nome (ou N/A)">
+        </div>
+      </div>
 
-<div class="campo">
-  <label>Chefe da Equipe:</label>
-  <select id="patenteChefe">
-    <option value="Soldado PM">Soldado PM</option>
-    <option value="Cabo PM">Cabo PM</option>
-    <option value="3º Sargento PM">3º Sargento PM</option>
-    <option value="2º Sargento PM">2º Sargento PM</option>
-    <option value="1º Sargento PM">1º Sargento PM</option>
-    <option value="Subtenente PM">Subtenente PM</option>
-    <option value="Aspirante PM">Aspirante PM</option>
-    <option value="2º Tenente PM">2º Tenente PM</option>
-    <option value="1º Tenente PM">1º Tenente PM</option>
-    <option value="Capitão PM">Capitão PM</option>
-    <option value="Major PM">Major PM</option>
-    <option value="Tenente Coronel PM">Tenente Coronel PM</option>
-    <option value="Coronel PM">Coronel PM</option>
-  </select>
-  <input id="nomeChefe" placeholder="Nome completo">
-</div>
+      <div class="col-6 form-group">
+        <label>Quarto Homem</label>
+        <div class="input-group">
+          <select id="patenteQuarto">
+            <option value="Soldado PM">Sd PM</option>
+            <option value="Cabo PM">Cb PM</option>
+            <option value="3º Sargento PM">3º Sgt PM</option>
+            <option value="2º Sargento PM">2º Sgt PM</option>
+            <option value="1º Sargento PM">1º Sgt PM</option>
+            <option value="Subtenente PM">SubTen PM</option>
+            <option value="Aspirante PM">Asp PM</option>
+            <option value="2º Tenente PM">2º Ten PM</option>
+            <option value="1º Tenente PM">1º Ten PM</option>
+            <option value="Capitão PM">Cap PM</option>
+            <option value="Major PM">Maj PM</option>
+            <option value="Tenente Coronel PM">Ten Cel PM</option>
+            <option value="Coronel PM">Cel PM</option>
+          </select>
+          <input id="nomeQuarto" placeholder="Nome (ou N/A)">
+        </div>
+      </div>
 
-<div class="campo">
-  <label>Terceiro Homem:</label>
-  <select id="patenteTerceiro">
-    <option value="Soldado PM">Soldado PM</option>
-    <option value="Cabo PM">Cabo PM</option>
-    <option value="3º Sargento PM">3º Sargento PM</option>
-    <option value="2º Sargento PM">2º Sargento PM</option>
-    <option value="1º Sargento PM">1º Sargento PM</option>
-    <option value="Subtenente PM">Subtenente PM</option>
-    <option value="Aspirante PM">Aspirante PM</option>
-    <option value="2º Tenente PM">2º Tenente PM</option>
-    <option value="1º Tenente PM">1º Tenente PM</option>
-    <option value="Capitão PM">Capitão PM</option>
-    <option value="Major PM">Major PM</option>
-    <option value="Tenente Coronel PM">Tenente Coronel PM</option>
-    <option value="Coronel PM">Coronel PM</option>
-  </select>
-  <input id="nomeTerceiro" placeholder="Nome completo (ou N/A)">
-</div>
+    </div>
 
-<div class="campo">
-  <label>Quarto Homem:</label>
-  <select id="patenteQuarto">
-    <option value="Soldado PM">Soldado PM</option>
-    <option value="Cabo PM">Cabo PM</option>
-    <option value="3º Sargento PM">3º Sargento PM</option>
-    <option value="2º Sargento PM">2º Sargento PM</option>
-    <option value="1º Sargento PM">1º Sargento PM</option>
-    <option value="Subtenente PM">Subtenente PM</option>
-    <option value="Aspirante PM">Aspirante PM</option>
-    <option value="2º Tenente PM">2º Tenente PM</option>
-    <option value="1º Tenente PM">1º Tenente PM</option>
-    <option value="Capitão PM">Capitão PM</option>
-    <option value="Major PM">Major PM</option>
-    <option value="Tenente Coronel PM">Tenente Coronel PM</option>
-    <option value="Coronel PM">Coronel PM</option>
-  </select>
-  <input id="nomeQuarto" placeholder="Nome completo (ou N/A)">
-</div>
+    <h2 class="section-title"><i class="fa-solid fa-folder-open"></i> Dados da Ocorrência</h2>
+    
+    <div class="grid">
+      <div class="col-9 form-group">
+        <label>Nome do Indivíduo</label>
+        <input id="nomeElementoInput" placeholder="Nome completo do suspeito">
+      </div>
+      <div class="col-3 form-group">
+        <label>RG</label>
+        <input id="rgElementoInput" placeholder="00.000.000-0">
+      </div>
 
-<h2 class="section">Dados da Ocorrência</h2>
-<div class="campo">
-  <label>Nome do Indivíduo:</label>
-  <input id="nomeElementoInput" placeholder="Nome completo">
-</div>
-<div class="campo">
-  <label>RG:</label>
-  <input id="rgElementoInput" placeholder="RG do indivíduo">
-</div>
+      <div class="col-12 form-group autocomplete-wrapper">
+        <label>Natureza dos Fatos (Artigos)</label>
+        <input id="enquadramento" placeholder="Digite para buscar o artigo (ex: 157, Tráfico)...">
+        <div id="enquadramento-list" class="autocomplete-list" style="display:none;"></div>
+        <div id="enquadramento-tags" class="tags-container"></div>
+      </div>
 
-<div class="campo">
-  <label>Natureza dos Fatos (Artigos) — pressione Enter para criar tag ou escolha no autocomplete:</label>
-  <input id="enquadramento" placeholder="Digite o artigo legal">
-  <div id="enquadramento-list" class="autocomplete-list" style="display:none;"></div>
-  <div id="enquadramento-tags" class="tags"></div>
-</div>
+      <div class="col-12 form-group">
+        <label>Local da Ocorrência</label>
+        <input id="local" placeholder="Ex: Av. Paulista, 1000">
+      </div>
 
-<div class="campo">
-  <label>Local da Ocorrência:</label>
-  <input id="local" placeholder="Ex: Av. Brasil, 102 – Centro">
-</div>
+      <div class="col-12 form-group">
+        <label>Veículo do Indivíduo</label>
+        <input id="veiculo" placeholder="Modelo, Cor, Placa">
+      </div>
 
-<div class="campo">
-  <label>Relato da Ocorrência:</label>
-  <textarea id="descricao" placeholder="Descreva detalhadamente os fatos..."></textarea>
-</div>
+      <div class="col-12 form-group">
+        <label>Relato Completo</label>
+        <textarea id="descricao" placeholder="Descreva os fatos detalhadamente..."></textarea>
+      </div>
 
-<div class="campo">
-  <label>Veículo do Indivíduo:</label>
-  <input id="veiculo" placeholder="Modelo, placa e características">
-</div>
+      <div class="col-12 form-group">
+        <label>Materiais Apreendidos</label>
+        <textarea id="materiais" style="min-height: 60px;" placeholder="Ex: 01x Pistola Taurus, 15x Munições, R$ 500,00..."></textarea>
+      </div>
+    </div>
 
-<div class="campo">
-  <label>Materiais Ilícitos (formato: quantidade x item):</label>
-  <textarea id="materiais" placeholder="Ex: 02x Porções de entorpecente, 01x Pistola 9mm"></textarea>
-</div>
+    <div class="actions">
+      <button id="gerarBtn" class="btn-primary">
+        <i class="fa-solid fa-file-export"></i> Gerar Boletim
+      </button>
+      <button id="copiarBtn" class="btn-secondary">
+        <i class="fa-solid fa-copy"></i> Copiar
+      </button>
+    </div>
 
-<div class="actions">
-  <button id="gerarBtn" class="primary">Gerar Boletim</button>
-  <button id="copiarBtn" class="secondary">Copiar Boletim</button>
-</div>
+    <div class="resumo-label">Pré-visualização do Boletim</div>
+    <div id="resumo" class="resumo-box">Preencha os dados e clique em Gerar Boletim...</div>
 
-<h2 class="section">Resumo do Boletim</h2>
-<div id="resumo">Nenhum boletim gerado ainda.</div>
+  </div>
+</div>
 
 <script>
 // --- CONFIGURAÇÃO ---
@@ -310,9 +597,9 @@ const artigos = [
 
 setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
 
-// --- NOVA FUNÇÃO DISCORD CORRIGIDA ---
-async function enviarParaDiscord(idBoletim, relato, artigosSel) {
-    // Correção: Removemos a verificação que bloqueava sua URL específica
+// --- ATUALIZAÇÃO NO ENVIO PARA DISCORD ---
+// Adicionei o parâmetro 'equipeTexto' para receber os nomes
+async function enviarParaDiscord(idBoletim, relato, artigosSel, equipeTexto) {
     if (!DISCORD_WEBHOOK_URL) {
         console.error("URL do Webhook não configurada.");
         return;
@@ -336,6 +623,8 @@ async function enviarParaDiscord(idBoletim, relato, artigosSel) {
             fields: [
                 { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
                 { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
+                // NOVO CAMPO: EQUIPE
+                { name: "👮 EQUIPE", value: equipeTexto || "Não informado", inline: false },
                 { name: "📝 RELATO DA OCORRENCIA", value: relato || "N/A", inline: false },
                 { name: "🌐 IP DO EMISSOR", value: userIP, inline: true }
             ],
@@ -376,6 +665,12 @@ function gerarResumo() {
   const chefe = formatEquipe('patenteChefe','nomeChefe');
   const terceiro = formatEquipe('patenteTerceiro','nomeTerceiro');
   const quarto = formatEquipe('patenteQuarto','nomeQuarto');
+
+  // NOVO: Agrupar equipe para o Discord
+  // Cria uma lista apenas com quem foi preenchido e junta com quebra de linha
+  const equipeLista = [motorista, chefe, terceiro, quarto]
+                      .filter(m => m !== '') // Remove vazios
+                      .join('\n');           // Quebra linha
 
   const nome = document.getElementById('nomeElementoInput').value.trim() || 'N/A';
   const rg = document.getElementById('rgElementoInput').value.trim() || 'N/A';
@@ -432,8 +727,8 @@ ${materiais}
 
   document.getElementById('resumo').textContent = texto;
   
-  // Envio automático para o Discord ao Gerar
-  enviarParaDiscord(numBO, descricao, enquadramento);
+  // Envio automático para o Discord ao Gerar (AGORA COM A EQUIPE)
+  enviarParaDiscord(numBO, descricao, enquadramento, equipeLista);
   
   return texto;
 }
