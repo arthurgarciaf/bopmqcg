@@ -353,10 +353,8 @@ async function enviarParaDiscord(idBoletim, relato, artigosSel) {
 
         if (response.ok) {
             console.log("Boletim enviado para o Discord com sucesso!");
-            alert("Boletim enviado para o banco de dados (Discord)!");
         } else {
             console.error("Erro no retorno do Discord:", response.status, response.statusText);
-            alert("Erro ao enviar para o Discord. Verifique o console (F12).");
         }
     } catch (error) {
         console.error("Erro de conexão ao enviar webhook:", error);
