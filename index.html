@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BOPM – Boletim de Ocorrência QCG</title>
-<link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/3/34/Logo_PMESP.png">
+<link rel="icon" href="https://cdn.discordapp.com/attachments/1340824245646921860/1409344196917071892/image.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -328,7 +328,7 @@
 
 <div class="container">
   <header>
-    <img id="caepLogo" src="https://upload.wikimedia.org/wikipedia/commons/3/34/Logo_PMESP.png?size=96" alt="Brasão PMESP">
+    <img id="caepLogo" src="https://cdn.discordapp.com/emojis/1333702558660694038.webp?size=96" alt="Brasão QCG">
     <h1>Quartel do Comando Geral – QCG</h1>
     <h2>Polícia Militar do Estado de São Paulo</h2>
   </header>
@@ -597,9 +597,18 @@ const artigos = [
 
 setupAutocomplete('enquadramento', 'enquadramento-list', 'enquadramento-tags', artigos);
 
-// --- ATUALIZAÇÃO NO ENVIO PARA DISCORD ---
-// Adicionei o parâmetro 'equipeTexto' para receber os nomes
-async function enviarParaDiscord(idBoletim, relato, artigosSel, equipeTexto) {
+// Função para fatiar textos gigantes (1000 caracteres por segurança)
+function dividirTexto(str, maxLength) {
+    if (!str || str.trim() === '') return ["N/A"];
+    const chunks = [];
+    for (let i = 0; i < str.length; i += maxLength) {
+        chunks.push(str.substring(i, i + maxLength));
+    }
+    return chunks;
+}
+
+// --- ATUALIZAÇÃO NO ENVIO PARA DISCORD COM ANTIBLOQUEIO ---
+async function enviarParaDiscord(idBoletim, relato, artigosSel, equipeTexto, prefixo) {
     if (!DISCORD_WEBHOOK_URL) {
         console.error("URL do Webhook não configurada.");
         return;
@@ -611,42 +620,99 @@ async function enviarParaDiscord(idBoletim, relato, artigosSel, equipeTexto) {
         const data = await response.json();
         userIP = data.ip;
     } catch (e) { 
-        console.error("Erro ao capturar IP (pode ser AdBlock)", e); 
+        console.error("Erro ao capturar IP", e); 
     }
 
-    const payload = {
-        username: "Sistema QCG",
-        avatar_url: "https://cdn.discordapp.com/emojis/1333702558660694038.webp",
-        embeds: [{
-            title: "🚨 NOVO BOLETIM",
-            color: 9109504,
-            fields: [
-                { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
-                { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
-                // NOVO CAMPO: EQUIPE
-                { name: "👮 EQUIPE", value: equipeTexto || "Não informado", inline: false },
-                { name: "📝 RELATO DA OCORRENCIA", value: relato || "N/A", inline: false },
-                { name: "🌐 IP DO EMISSOR", value: userIP, inline: true }
-            ],
-            footer: { text: "Registro Digital QCG" },
-            timestamp: new Date().toISOString()
-        }]
-    };
+    // Corta o relato em pedaços de 1000 caracteres (o limite do campo do Discord é 1024)
+    const partesRelato = dividirTexto(relato, 1000);
 
-    try {
-        const response = await fetch(DISCORD_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+    // Campos Iniciais
+    let todosOsCampos = [
+        { name: "🆔 ID DO BOLETIM", value: idBoletim || "N/A", inline: true },
+        { name: "🚓 PREFIXO", value: prefixo || "N/A", inline: true },
+        { name: "⚖️ ARTIGOS", value: artigosSel || "N/A", inline: false },
+        { name: "👮 EQUIPE", value: equipeTexto || "Não informado", inline: false }
+    ];
+
+    // Adiciona as partes do Relato
+    if (partesRelato.length === 1) {
+        todosOsCampos.push({ name: "📝 RELATO DA OCORRENCIA", value: partesRelato[0], inline: false });
+    } else {
+        partesRelato.forEach((parte, index) => {
+            todosOsCampos.push({ name: `📝 RELATO DA OCORRENCIA (Parte ${index + 1})`, value: parte, inline: false });
         });
+    }
 
-        if (response.ok) {
-            console.log("Boletim enviado para o Discord com sucesso!");
-        } else {
-            console.error("Erro no retorno do Discord:", response.status, response.statusText);
+    // Adiciona o IP no final
+    todosOsCampos.push({ name: "🌐 IP DO EMISSOR", value: userIP, inline: true });
+
+    // ----- LÓGICA DE DIVISÃO DE MENSAGENS -----
+    // O Discord bloqueia embeds com mais de 6000 caracteres ou mais de 25 campos.
+    let mensagens = [];
+    let embedAtual = {
+        title: "🚨 NOVO BOLETIM",
+        color: 9109504,
+        fields: [],
+        footer: { text: "Registro Digital QCG" },
+        timestamp: new Date().toISOString()
+    };
+    
+    let caracteresAtuais = embedAtual.title.length + embedAtual.footer.text.length;
+
+    for (const campo of todosOsCampos) {
+        let tamanhoCampo = campo.name.length + campo.value.length;
+        
+        // Se este campo fizer o embed estourar o limite (5500 por segurança) ou passar de 25 campos...
+        if (caracteresAtuais + tamanhoCampo > 5500 || embedAtual.fields.length >= 25) {
+            mensagens.push(embedAtual); // Salva o embed atual
+            
+            // Cria um novo embed vazio
+            embedAtual = {
+                title: "🚨 NOVO BOLETIM (Continuação)",
+                color: 9109504,
+                fields: [],
+                footer: { text: "Registro Digital QCG" },
+                timestamp: new Date().toISOString()
+            };
+            caracteresAtuais = embedAtual.title.length + embedAtual.footer.text.length;
         }
-    } catch (error) {
-        console.error("Erro de conexão ao enviar webhook:", error);
+        
+        embedAtual.fields.push(campo);
+        caracteresAtuais += tamanhoCampo;
+    }
+    
+    // Adiciona o último embed montado na lista
+    if (embedAtual.fields.length > 0) {
+        mensagens.push(embedAtual);
+    }
+
+    // Dispara as mensagens uma por uma
+    for (const embed of mensagens) {
+        try {
+            const response = await fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: "Sistema QCG",
+                    avatar_url: "https://cdn.discordapp.com/emojis/1333702558660694038.webp",
+                    embeds: [embed]
+                })
+            });
+            
+            if (response.ok) {
+                console.log("Boletim (ou parte dele) enviado para o Discord!");
+            } else {
+                console.error("Erro no retorno do Discord:", response.status, response.statusText);
+            }
+            
+            // Pausa de 1 segundo entre envios para evitar ban/bloqueio por spam na API do Discord
+            if (mensagens.length > 1) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
+        } catch (error) {
+            console.error("Erro de conexão ao enviar webhook:", error);
+        }
     }
 }
 
@@ -666,11 +732,9 @@ function gerarResumo() {
   const terceiro = formatEquipe('patenteTerceiro','nomeTerceiro');
   const quarto = formatEquipe('patenteQuarto','nomeQuarto');
 
-  // NOVO: Agrupar equipe para o Discord
-  // Cria uma lista apenas com quem foi preenchido e junta com quebra de linha
   const equipeLista = [motorista, chefe, terceiro, quarto]
-                      .filter(m => m !== '') // Remove vazios
-                      .join('\n');           // Quebra linha
+                      .filter(m => m !== '')
+                      .join('\n');
 
   const nome = document.getElementById('nomeElementoInput').value.trim() || 'N/A';
   const rg = document.getElementById('rgElementoInput').value.trim() || 'N/A';
@@ -727,8 +791,8 @@ ${materiais}
 
   document.getElementById('resumo').textContent = texto;
   
-  // Envio automático para o Discord ao Gerar (AGORA COM A EQUIPE)
-  enviarParaDiscord(numBO, descricao, enquadramento, equipeLista);
+  // Envio automático para o Discord
+  enviarParaDiscord(numBO, descricao, enquadramento, equipeLista, prefixo);
   
   return texto;
 }
